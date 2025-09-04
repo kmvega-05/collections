@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stddef.h> 
 #include <stdbool.h>
+#include <string.h> 
 
 /**
  * @brief Lanza un error fatal y termina la ejecución.

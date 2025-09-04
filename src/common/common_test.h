@@ -1,7 +1,9 @@
 #ifndef COMMON_TEST_H
 #define COMMON_TEST_H
 
-#include "../vector/vector.h"
+#include <CUnit/CUnit.h>
+#include <CUnit/Basic.h>
+#include <string.h> 
 
 // Funciones auxiliares para tests
 void *copy_string(const void *s);
@@ -11,7 +13,7 @@ int cmp_string(const void *a, const void *b);
 
 // Estructura de ejemplo para tests con tipos definidos por el usuario
 typedef struct {
-    char name[20];
+    char *name;
     int age;
 } Person;
 
@@ -19,5 +21,6 @@ typedef struct {
 void *copy_person(const void *p);
 void free_person(void *p); 
 int cmp_person(const void *a, const void *b);
+Person *person_create(const char *name, int age);
 
 #endif // COMMON_TEST_H

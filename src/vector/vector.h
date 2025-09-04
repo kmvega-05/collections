@@ -1,7 +1,7 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include "../common/common.h"
+#include "common/common.h"
 
 /**
  * @brief Vector genérico de tamaño fijo.
@@ -11,7 +11,7 @@
  * - `void free(void *item)`: Función que libera la memoria reservada por un elemento. Si se proporciona,
  *  el ownership de los datos pasa al vector, si no se proporciona el usuario es el responsable de liberar la memoria de los elementos.   
 
- * - `void *copy(void *item)`: Función que realiza la copia profunda de un elemento. Si no se proporciona se realizarán
+ * - `void *copy(void *item)`: Función que realiza la copia profunda de un elemento para funciones específicas. Si no se proporciona se realizarán
  *  copias superficiales de los elementos.
  *  
  * - `int cmp(void *a, void *b)`: Función que permite comparar dos elementos. Si no se proporciona, funciones que requieran comparaciones
@@ -34,18 +34,31 @@ typedef struct {
  * @param copy   Función para copiar elementos (puede ser NULL).
  * @param cmp    Función para comparar elementos (puede ser NULL).
  *
+ * @note Los elementos se copian superficialmente(comparten espacio de memoria con los pasados por parámetro)
  * @return Puntero al vector creado, o NULL si ocurre un error de asignación.
  */
 Vector *vector_make(void **items, size_t size,
                     free_func free, copy_func copy, cmp_func cmp);
 
 /**
- * @brief Libera un vector y todos sus elementos según free_func.
+ * @brief Libera un vector y todos sus elementos usando free_func.
  *
  * @param v Puntero al vector a destruir.
+ * 
+ * @note Si el vector no cuenta con función de liberación simplemente se libera la estructura.
  */
 void vector_destroy(Vector *v);
 
-
+/**
+ * @brief Libera el elemento del vector y asigna NULL en la posición especificada.
+ *        Se permiten índices negativos para indexar desde el final.
+ *
+ * @param v Puntero al vector.
+ * @param index Índice del elemento a destruir.
+ * 
+ * @note Si el vector no cuenta con función de liberación solamente se asigna NULL en la posición.
+ *
+ */
+void vector_destroy_at(Vector *v, int index);
 
 #endif // VECTOR_H
