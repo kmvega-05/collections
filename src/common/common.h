@@ -1,8 +1,23 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <stddef.h>  // para size_t
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h> 
 #include <stdbool.h>
+
+/**
+ * @brief Lanza un error fatal y termina la ejecución.
+ * 
+ * Esta función imprime el mensaje de error en stderr y finaliza el programa
+ * con código EXIT_FAILURE. Está pensada para situaciones en las que el usuario
+ * hace un uso incorrecto de la API de la biblioteca.
+ *
+ * @param msg Mensaje de error a mostrar.
+ */
+void raise_error(const char *msg);
+
+/* Callbacks genéricos para manejo de datos */
 
 /**
  * @brief Callback para copiar un elemento.

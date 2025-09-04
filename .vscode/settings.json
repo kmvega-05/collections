@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.l": "lex",
+        "common_test.h": "c",
+        "basic.h": "c"
+    }
+}
