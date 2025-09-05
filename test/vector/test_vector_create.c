@@ -1,5 +1,5 @@
-#include "vector/vector.h"
-#include "common/common_test.h"
+#include "vector.h"
+#include "common_test.h"
 
 void test_vector_make_not_free_needed(void) {
 

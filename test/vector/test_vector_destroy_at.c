@@ -1,5 +1,5 @@
 #include "vector.h"
-#include "common/common_test.h"
+#include "common_test.h"
 
 void test_vector_destroy_not_free_needed(void) {
     const char *words[] = {"one", "two", "three"};

@@ -1,7 +1,7 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include "common/common.h"
+#include "common.h"
 
 /**
  * @brief Vector genérico de tamaño fijo.

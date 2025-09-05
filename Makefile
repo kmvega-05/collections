@@ -2,7 +2,7 @@
 # Compilador y flags
 CC = gcc
 CFLAGS = -Wall -Wextra -g -std=c11
-INCLUDES = -I./src -I./src/common -I./src/vector
+INCLUDES = -I./include -I./src
 
 # ----------------------------
 # Carpetas
@@ -11,66 +11,50 @@ TEST_DIR = test
 BUILD_DIR = build
 
 # ----------------------------
-# Fuentes de la librería
-SRC = $(SRC_DIR)/common/common.c \
-      $(SRC_DIR)/common/common_test.c \
-      $(SRC_DIR)/vector/vector.c
-
-# ----------------------------
-# Objetos de la librería
-OBJ = $(BUILD_DIR)/common.o \
-      $(BUILD_DIR)/common_test.o \
-      $(BUILD_DIR)/vector.o
+# Archivos fuente de la librería
+SRC = $(shell find $(SRC_DIR) -name "*.c")
+OBJ = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
 
 # ----------------------------
 # Archivos de test
-TEST_SRC = $(wildcard $(TEST_DIR)/**/*.c)
+TEST_SRC = $(shell find $(TEST_DIR) -name "*.c")
+
+# ----------------------------
+# Librería estática
+LIB = $(BUILD_DIR)/libcollections.a
 
 # ----------------------------
 # Ejecutable de tests
 EXEC = $(BUILD_DIR)/all_tests
 
 # ----------------------------
-# Crear carpeta build si no existe
-$(shell mkdir -p $(BUILD_DIR))
-
-# ----------------------------
-# Build objetos de la librería
-$(BUILD_DIR)/common.o: $(SRC_DIR)/common/common.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD_DIR)/common_test.o: $(SRC_DIR)/common/common_test.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-$(BUILD_DIR)/vector.o: $(SRC_DIR)/vector/vector.c
+# Regla genérica para compilar .o
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # ----------------------------
-# Build total
-.PHONY: build
-build: $(OBJ)
-	@echo "Build completed"
+# Librería
+$(LIB): $(OBJ)
+	ar rcs $@ $^
 
 # ----------------------------
-# Limpiar compilados
-.PHONY: clean
-clean:
-	rm -rf $(BUILD_DIR)/*
+# Ejecutable de tests
+$(EXEC): $(LIB) $(TEST_SRC)
+	$(CC) $(CFLAGS) $(INCLUDES) $(TEST_SRC) -L$(BUILD_DIR) -lcollections -lcunit -o $@
 
 # ----------------------------
-# Test: compila y ejecuta todos los tests
-.PHONY: test
-test: $(OBJ)
-	$(CC) $(CFLAGS) $(INCLUDES) \
-		$(OBJ) $(TEST_SRC) $(TEST_DIR)/main.c \
-		-o $(EXEC) -lcunit
+# Targets
+.PHONY: build test valgrind clean
+
+build: $(LIB)
+	@echo "Build completed ✅"
+
+test: $(EXEC)
 	$(EXEC)
 
-# ----------------------------
-# Valgrind
-.PHONY: valgrind
-valgrind: $(OBJ)
-	$(CC) $(CFLAGS) $(INCLUDES) \
-		$(OBJ) $(TEST_SRC) $(TEST_DIR)/main.c \
-		-o $(EXEC) -lcunit
+valgrind: $(EXEC)
 	valgrind --leak-check=full --track-origins=yes $(EXEC)
+
+clean:
+	rm -rf $(BUILD_DIR)/*

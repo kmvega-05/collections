@@ -1,5 +1,5 @@
 #include "vector.h"
-#include "common/common_test.h"
+#include "common_test.h"
 
 void test_vector_get_set_not_free_needed(void) {
     int a = 10, b = 20, c = 30;
