@@ -2,11 +2,12 @@
 #include "common_test.h"
 
 void test_vector_index_of_and_contains(void) {
-    // Creamos algunos enteros estáticos (no requieren free)
+    // Enteros estáticos (no requieren free)
     int a = 10, b = 20, c = 30;
     void *items[] = {&a, &b, &c};
 
-    Vector *v = vector_make(items, 3, NULL, NULL, cmp_int);
+    // No se crean copias profundas ni se liberan los elementos
+    Vector *v = vector_make(items, 3, NULL, NULL, cmp_int, false);
 
     // Prueba index_of
     CU_ASSERT_EQUAL(vector_index_of(v, &a), 0);
@@ -18,5 +19,5 @@ void test_vector_index_of_and_contains(void) {
     CU_ASSERT_TRUE(vector_contains(v, &c));
     CU_ASSERT_FALSE(vector_contains(v, &(int){40}));
 
-    vector_destroy(v);
+    vector_destroy(v); // solo libera la estructura
 }

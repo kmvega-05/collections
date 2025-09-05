@@ -26,28 +26,21 @@ typedef struct {
 } Vector;
 
 /**
- * @brief Crea un nuevo vector de tamaño fijo.
+ * @brief Crea un nuevo vector a partir de un arreglo de elementos.
  *
- * @param items  Array de punteros a elementos iniciales (puede ser NULL).
- * @param size   Tamaño del vector (cantidad de posiciones).
- * @param free   Función para liberar elementos (puede ser NULL).
- * @param copy   Función para copiar elementos (puede ser NULL).
- * @param cmp    Función para comparar elementos (puede ser NULL).
+ * @param items Arreglo de punteros a elementos iniciales (puede ser NULL si size == 0).
+ * @param size Número de elementos en el arreglo.
+ * @param free_func Callback para liberar elementos (puede ser NULL).
+ * @param copy_func Callback para copiar elementos (necesario si se usa deep_copy).
+ * @param cmp_func Callback para comparar elementos (puede ser NULL).
+ * @param deep_copy Si es true, se realiza copia profunda usando copy_func.
+ *                  Si es false, se copian las referencias.
+ * @return Nuevo vector creado, o NULL si ocurre un error interno de memoria.
  *
- * @note Los elementos se copian superficialmente(comparten espacio de memoria con los pasados por parámetro)
- * @return Puntero al vector creado, o NULL si ocurre un error de asignación.
+ * @note Errores de uso:
+ *       - Si deep_copy es true y copy_func es NULL → raise_error.
  */
-Vector *vector_make(void **items, size_t size,
-                    free_func free, copy_func copy, cmp_func cmp);
-
-/**
- * @brief Libera un vector y todos sus elementos usando free_func.
- *
- * @param v Puntero al vector a destruir.
- * 
- * @note Si el vector no cuenta con función de liberación simplemente se libera la estructura.
- */
-void vector_destroy(Vector *v);
+Vector *vector_make(void **items, size_t size, free_func free_func, copy_func copy_func, cmp_func  cmp_func, bool deep_copy);
 
 /**
  * @brief Libera el elemento del vector y asigna NULL en la posición especificada.
@@ -60,6 +53,15 @@ void vector_destroy(Vector *v);
  *
  */
 void vector_destroy_at(Vector *v, int index);
+
+/**
+ * @brief Libera un vector y todos sus elementos usando free_func.
+ *
+ * @param v Puntero al vector a destruir.
+ * 
+ * @note Si el vector no cuenta con función de liberación simplemente se libera la estructura.
+ */
+void vector_destroy(Vector *v);
 
 /**
  * @brief Obtiene el elemento en un índice del vector (soporta índices negativos).
@@ -108,5 +110,6 @@ int vector_index_of(const Vector *v, const void *item);
  *       Si no está definido, lanza error de uso.
  */
 bool vector_contains(const Vector *v, const void *item);
+
 
 #endif // VECTOR_H

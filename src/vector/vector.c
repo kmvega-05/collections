@@ -3,48 +3,54 @@
 // Prototipos de funciones auxiliares
 static size_t vector_resolve_index(const Vector *v, int index); 
 
-Vector *vector_make(void **items, size_t size, free_func free, copy_func copy, cmp_func cmp) {
-    Vector *v = malloc(sizeof(Vector));
-    if (!v) return NULL;
+Vector *vector_make(void **items, size_t size, free_func free_func, copy_func copy_func, cmp_func cmp_func, bool deep_copy) {
+    
+    if (deep_copy && copy_func == NULL) 
+        raise_error("vector_make: copy_func not defined for deep_copy");
+    
 
-    // Inicializar campos
-    v->size = size;
-    v->free = free;
-    v->copy = copy;
-    v->cmp  = cmp;
+    Vector *vec = malloc(sizeof(Vector));
+    
+    if (vec == NULL) 
+        return NULL; // error interno
+    
+    // Asignación de campos
+    vec->size = size;
+    vec->free = free_func;
+    vec->copy = copy_func;
+    vec->cmp = cmp_func;
 
-    // Reservar memoria para el arreglo de datos
-    v->data = calloc(size, sizeof(void *));
-    if (!v->data) {
-        free(v);
+    // Asignar los elementos
+    // ---------------------------
+
+    // Vector vacío
+    if (size == 0) 
+    {
+        vec->data = NULL;
+        return vec;
+    }
+
+    // Reservar memoria
+    vec->data = malloc(sizeof(void *) * size);
+    
+    // Error al reservar memoria
+    if (vec->data == NULL) 
+    {
+        free(vec);
         return NULL;
     }
 
-    // Copiar los elementos iniciales si se proporcionan
-    if (items) {
-        for (size_t i = 0; i < size; i++) 
-        {
-            v->data[i] = items[i]; 
-        }
+    // Copiar los elementos (copia profunda o por referencia)
+    for (size_t i = 0; i < size; i++) 
+    {
+        vec->data[i] = deep_copy ? copy_func(items[i]) : items[i];
+          
     }
+    // ---------------------------------
 
-    return v;
+    return vec;
 }
 
-void vector_destroy(Vector *v) {
-    if (!v) return;
-
-    if (v->data && v->free) {
-        for (size_t i = 0; i < v->size; i++) 
-        {
-            if (v->data[i]) 
-                v->free(v->data[i]);            
-        }
-    }
-
-    free(v->data);
-    free(v);
-}
 
 void vector_destroy_at(Vector *v, int index) {
     if (!v) {
@@ -52,11 +58,25 @@ void vector_destroy_at(Vector *v, int index) {
     }
     size_t idx = vector_resolve_index(v, index);
 
-    if (v->data[idx] && v->free) {
+    if (v->data[idx] && v->free) 
+    {
         v->free(v->data[idx]);
     }
 
     v->data[idx] = NULL;    // Evitar dangling pointer
+}
+
+void vector_destroy(Vector *v) {
+    if(!v) return;
+
+    for (size_t i = 0; i < v->size; i++)
+    {
+        vector_destroy_at(v, i);
+    }
+
+    free(v->data);
+    free(v);
+    
 }
 
 void *vector_get(const Vector *v, int index) {

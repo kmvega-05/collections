@@ -5,7 +5,8 @@ void test_vector_get_set_not_free_needed(void) {
     int a = 10, b = 20, c = 30;
     void *items[] = {&a, &b, &c};
 
-    Vector *v = vector_make(items, 3, NULL, NULL, NULL);
+    // No se crean copias profundas ni se libera
+    Vector *v = vector_make(items, 3, NULL, NULL, NULL, false);
 
     CU_ASSERT_PTR_NOT_NULL(v);
     CU_ASSERT_EQUAL(v->size, 3);
@@ -19,7 +20,7 @@ void test_vector_get_set_not_free_needed(void) {
     vector_set(v, 1, &d);
     CU_ASSERT_PTR_EQUAL(vector_get(v, 1), &d);
 
-    vector_destroy(v);
+    vector_destroy(v); // no libera enteros
 }
 
 void test_vector_get_set_user_ownership(void) {
@@ -29,8 +30,8 @@ void test_vector_get_set_user_ownership(void) {
 
     void *items[] = {s1, s2, s3};
 
-    // No pasamos free_func -> ownership es del usuario
-    Vector *v = vector_make(items, 3, NULL, NULL, cmp_string);
+    // No se crea copia profunda ni se libera(responsabilidad del usuario)
+    Vector *v = vector_make(items, 3, NULL, NULL, cmp_string, false);
 
     CU_ASSERT_PTR_NOT_NULL(v);
 
@@ -42,7 +43,7 @@ void test_vector_get_set_user_ownership(void) {
     vector_set(v, 1, s4);
     CU_ASSERT_STRING_EQUAL((char *)vector_get(v, 1), "delta");
 
-    vector_destroy(v);
+    vector_destroy(v); // no libera strings
 
     // liberar manualmente (ownership es del usuario)
     free(s1);
@@ -58,7 +59,8 @@ void test_vector_get_set_structure_ownership(void) {
 
     void *items[] = {p1, p2, p3};
 
-    Vector *v = vector_make(items, 3, free_person, copy_person, cmp_person);
+    // No se crean copias profundas, el vector libera los elementos
+    Vector *v = vector_make(items, 3, free_person, copy_person, cmp_person, false);
 
     CU_ASSERT_PTR_NOT_NULL(v);
 
@@ -67,10 +69,8 @@ void test_vector_get_set_structure_ownership(void) {
 
     // set con liberación automática del anterior
     Person *p4 = person_create("Diana", 40);
-
-
     vector_set(v, 1, p4);
     CU_ASSERT_STRING_EQUAL(((Person *)vector_get(v, 1))->name, "Diana");
 
-    vector_destroy(v); // libera todo automáticamente
+    vector_destroy(v); 
 }

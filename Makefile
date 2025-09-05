@@ -1,60 +1,55 @@
-# ----------------------------
 # Compilador y flags
 CC = gcc
-CFLAGS = -Wall -Wextra -g -std=c11
-INCLUDES = -I./include -I./src
+CFLAGS = -Wall -Wextra -g -Iinclude
+LDFLAGS = -lcunit
 
-# ----------------------------
 # Carpetas
 SRC_DIR = src
 TEST_DIR = test
-BUILD_DIR = build
+OBJ_DIR = build
+LIB_DIR = lib
 
-# ----------------------------
-# Archivos fuente de la librería
-SRC = $(shell find $(SRC_DIR) -name "*.c")
-OBJ = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC))
-
-# ----------------------------
-# Archivos de test
-TEST_SRC = $(shell find $(TEST_DIR) -name "*.c")
-
-# ----------------------------
-# Librería estática
-LIB = $(BUILD_DIR)/libcollections.a
-
-# ----------------------------
-# Ejecutable de tests
-EXEC = $(BUILD_DIR)/all_tests
-
-# ----------------------------
-# Regla genérica para compilar .o
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-# ----------------------------
 # Librería
-$(LIB): $(OBJ)
+LIB_NAME = $(LIB_DIR)/libcollections.a
+LIB_SRCS = $(wildcard $(SRC_DIR)/**/*.c) $(wildcard $(SRC_DIR)/*.c)
+LIB_OBJS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(LIB_SRCS))
+
+# Tests
+TEST_SRCS = $(TEST_DIR)/main.c $(wildcard $(TEST_DIR)/vector/*.c)
+TEST_OBJS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(TEST_SRCS))
+TEST_BIN = test_runner
+
+# Crear carpetas necesarias
+$(shell mkdir -p $(OBJ_DIR) $(LIB_DIR))
+
+# Default target
+build: $(LIB_NAME) $(TEST_BIN)
+	@echo "✅ Build completado correctamente."
+
+# Compilar librería estática
+$(LIB_NAME): $(LIB_OBJS)
 	ar rcs $@ $^
 
-# ----------------------------
-# Ejecutable de tests
-$(EXEC): $(LIB) $(TEST_SRC)
-	$(CC) $(CFLAGS) $(INCLUDES) $(TEST_SRC) -L$(BUILD_DIR) -lcollections -lcunit -o $@
+# Compilar objetos de la librería y tests
+$(OBJ_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# ----------------------------
-# Targets
-.PHONY: build test valgrind clean
+# Linkear binario de tests
+$(TEST_BIN): $(LIB_NAME) $(TEST_OBJS)
+	$(CC) $(CFLAGS) $(TEST_OBJS) -L$(LIB_DIR) -lcollections $(LDFLAGS) -o $@
 
-build: $(LIB)
-	@echo "Build completed ✅"
+# Ejecutar tests directamente
+test: $(TEST_BIN)
+	@./$(TEST_BIN)
+	@echo "🧪 Tests ejecutados correctamente."
 
-test: $(EXEC)
-	$(EXEC)
+# Ejecutar tests con Valgrind
+memcheck: $(TEST_BIN)
+	@valgrind --leak-check=full ./$(TEST_BIN)
+	@echo "🛠️ Memcheck ejecutado correctamente."
 
-valgrind: $(EXEC)
-	valgrind --leak-check=full --track-origins=yes $(EXEC)
-
+# Limpiar
 clean:
-	rm -rf $(BUILD_DIR)/*
+	rm -rf $(OBJ_DIR) $(LIB_DIR) $(TEST_BIN)
+	@echo "🧹 Proyecto limpiado correctamente."
