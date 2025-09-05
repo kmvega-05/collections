@@ -61,4 +61,28 @@ void vector_destroy(Vector *v);
  */
 void vector_destroy_at(Vector *v, int index);
 
+/**
+ * @brief Obtiene el elemento en un índice del vector (soporta índices negativos).
+ *
+ * El valor retornado es un `void *`. El usuario debe castear explícitamente
+ * al tipo correspondiente (ej: `(Person *)` o `(char *)`).
+ *
+ * @param v Puntero al vector (no NULL).
+ * @param index Índice del elemento.
+ * @return Puntero al elemento o NULL en caso de error interno.
+ */
+void *vector_get(const Vector *v, int index);
+
+/**
+ * @brief Reemplaza el elemento en un índice del vector (soporta índices negativos).
+ *
+ * El parámetro `item` se recibe como `void *`. El usuario debe castear el objeto
+ * explícitamente antes de insertar.
+ *
+ * @param v Puntero al vector (no NULL).
+ * @param index Índice donde colocar el nuevo elemento.
+ * @param item Nuevo elemento.
+ */
+void vector_set(Vector *v, int index, void *item);
+
 #endif // VECTOR_H
