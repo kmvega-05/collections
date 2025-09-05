@@ -53,3 +53,8 @@ Person *person_create(const char *name, int age) {
     return p;
 }
 
+int cmp_int(const void *a, const void *b) {
+    int ia = *(const int *)a;
+    int ib = *(const int *)b;
+    return (ia > ib) - (ia < ib);  // devuelve 1, 0 o -1
+}

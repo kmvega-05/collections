@@ -23,4 +23,7 @@ void free_person(void *p);
 int cmp_person(const void *a, const void *b);
 Person *person_create(const char *name, int age);
 
+
+int cmp_int(const void *a, const void *b);
+
 #endif // COMMON_TEST_H

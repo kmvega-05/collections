@@ -90,6 +90,47 @@ void vector_set(Vector *v, int index, void *item) {
     v->data[idx] = item;
 }
 
+int vector_index_of(const Vector *v, const void *item) {
+    if (!v) {
+        raise_error("vector_index_of: vector es NULL");
+    }
+
+    if(!item) {
+        raise_error("vector_index_of: item es NULL");
+    }
+
+    if (!v->cmp) {
+        raise_error("vector_index_of: Vector no tiene función de comparación definida");
+        return -1;
+    }
+
+    for (size_t i = 0; i < v->size; i++) 
+    {
+        if (v->data[i] && v->cmp(v->data[i], item) == 0) {
+            return (int)i;
+        }
+    }
+
+    return -1;
+}
+
+bool vector_contains(const Vector *v, const void *item) {
+    if (!v) {
+        raise_error("vector_contains: vector es NULL");
+    }
+
+    if(!item) {
+        raise_error("vector_contains: item es NULL");
+    }
+
+    if (!v->cmp) {
+        raise_error("vector_contains: Vector no tiene función de comparación definida");
+        return -1;
+    }
+
+    return vector_index_of(v, item) != -1;
+}
+
 // Funciones Auxiliares
 // -----------------------------------------------------------------------------------
 /**

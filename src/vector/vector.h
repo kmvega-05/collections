@@ -85,4 +85,28 @@ void *vector_get(const Vector *v, int index);
  */
 void vector_set(Vector *v, int index, void *item);
 
+/**
+ * @brief Busca un elemento en el vector y devuelve su índice.
+ *
+ * @param v    Puntero al vector.
+ * @param item Puntero al elemento a buscar (tipo `void *`, casteado desde el tipo del usuario).
+ * @return     Índice del primer elemento encontrado o -1 si no existe.
+ *
+ * @note Requiere que el vector tenga definido un `cmp_func`. 
+ *       Si no está definido, lanza error de uso.
+ */
+int vector_index_of(const Vector *v, const void *item);
+
+/**
+ * @brief Verifica si un elemento está presente en el vector.
+ *
+ * @param v    Puntero al vector.
+ * @param item Puntero al elemento a buscar (tipo `void *`, casteado desde el tipo del usuario).
+ * @return     true si el elemento está presente, false en caso contrario.
+ *
+ * @note Requiere que el vector tenga definido un `cmp_func`. 
+ *       Si no está definido, lanza error de uso.
+ */
+bool vector_contains(const Vector *v, const void *item);
+
 #endif // VECTOR_H
